@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+# Creates a CRT / KEY encryption key pair.
+
+PASSPHRASE=58vBhvHDRqS3CnASvPdh
+
+rm debian3.*
+rm rootCA.*
+
+openssl genrsa -aes256 -passout pass:$PASSPHRASE -out rootCA.key 2048
+
+openssl req -x509 -new -nodes -key rootCA.key -passin pass:$PASSPHRASE \
+-sha256 -days 1024 -out rootCA.pem \
+-subj "/C=NL/ST=Limburg/L=Weert/O=debian3/OU=debian3/CN=debian3" \
+-addext "subjectAltName=email:aldo.verlinde@gmail.com"
+
+openssl genrsa -des3 -passout pass:$PASSPHRASE -out debian3.key 2048
+
+openssl req -key debian3.key -new -out debian3.csr -passin pass:$PASSPHRASE \
+-subj "/C=NL/ST=Limburg/L=Weert/O=debian3/OU=debian3/CN=debian3" \
+-addext "subjectAltName=email:aldo.verlinde@gmail.com"
+
+openssl x509 -req -CA rootCA.pem -CAkey rootCA.key -in debian3.csr \
+-out debian3.crt -days 365 -CAcreateserial -passin pass:$PASSPHRASE \
+-extfile <(echo "basicConstraints = CA:FALSE")
+
