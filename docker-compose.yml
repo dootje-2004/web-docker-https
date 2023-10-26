@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: php8
+    hostname: debian3
+    ports:
+      - "12080:80"
+      - "12443:443"
+    volumes:
+      - "./html:/var/www/html"
