@@ -2,3 +2,7 @@
 *.csr
 *.key
 *.pem
+passphrase.sh
+ca-password
+server.conf
+ssl-passphrase.conf

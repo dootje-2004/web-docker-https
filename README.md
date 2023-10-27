@@ -5,3 +5,5 @@ Example project for setting up SSL on an Apache container.
 ## References
 
 <https://dockerwebdev.com/tutorials/docker-php-development/>
+
+<https://docs.docker.com/build/architecture/#install-buildx>
