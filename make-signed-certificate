@@ -15,8 +15,11 @@ CA_KEY_FILE=ca-root.key
 CA_CRT_FILE=ca-root.crt
 CA_PASS_FILE=ca-passphrase
 SERVER_KEY_FILE=server.key
+SERVER_REQ_FILE=server.csr
 SERVER_CRT_FILE=server.crt
 SERVER_PASSPHRASE_FILE=pk-passphrase-for-apache.sh
+CONF_TEMPLATE=server.conf.template
+CONF_FILE=server.conf
 
 # Check for CA key.
 if [ ! -f $CA_KEY_FILE ]; then
@@ -48,13 +51,13 @@ openssl genpkey -quiet -algorithm rsa -pass pass:$PK_PASSPHRASE \
 
 # Create a signing request from the private key.
 echo "Creating signing request"
-openssl req -new -key $SERVER_KEY_FILE -out $DOMAIN.csr \
+openssl req -new -key $SERVER_KEY_FILE -out $SERVER_REQ_FILE \
 -passin pass:$PK_PASSPHRASE -subj "/CN=$DOMAIN" \
 -addext "subjectAltName=email:admin@$DOMAIN"
 
 # Sign the request with the CA root certificate.
 echo "Signing request with root certificate"
-openssl x509 -in $DOMAIN.csr -req -CA $CA_CRT_FILE -CAkey $CA_KEY_FILE \
+openssl x509 -in $SERVER_REQ_FILE -req -CA $CA_CRT_FILE -CAkey $CA_KEY_FILE \
 -passin pass:$CA_PASSPHRASE -out $SERVER_CRT_FILE \
 -extfile <(printf "authorityKeyIdentifier=keyid,issuer\n
 basicConstraints=CA:FALSE\nsubjectAltName=DNS:$DOMAIN")
@@ -63,5 +66,8 @@ basicConstraints=CA:FALSE\nsubjectAltName=DNS:$DOMAIN")
 printf "#!/bin/sh\necho \"$PK_PASSPHRASE\"" > $SERVER_PASSPHRASE_FILE
 chmod a+x $SERVER_PASSPHRASE_FILE
 echo "Passphrase written to $SERVER_PASSPHRASE_FILE"
+
+echo "Creating server.conf from template"
+sed "s/{{DOMAIN}}/$DOMAIN/g" $CONF_TEMPLATE > $CONF_FILE
 
 echo "Done"

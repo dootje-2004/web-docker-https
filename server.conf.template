@@ -1,6 +1,6 @@
 <VirtualHost *:80>
-    ServerAdmin admin@laptop-aldo
-    ServerName laptop-aldo
+    ServerAdmin admin@{{DOMAIN}}
+    ServerName {{DOMAIN}}
     DocumentRoot /var/www/html
     
     ErrorLog ${APACHE_LOG_DIR}/error.log
@@ -9,8 +9,8 @@
 
 
 <VirtualHost *:443>
-    ServerAdmin admin@laptop-aldo
-    ServerName laptop-aldo
+    ServerAdmin admin@{{DOMAIN}}
+    ServerName {{DOMAIN}}
     DocumentRoot /var/www/html
 
     SSLEngine on
