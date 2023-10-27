@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-
-IMAGE=php:8-apache                                         # Docker image running the apache2 service.
-CA_PASS_FILE=/home/aldo/git/web-docker-https/ca-password   # Location of the CA password file.
-CA_KEY_FILE=ca-root.key                                    # File with the CA root key.
-CA_CRT_FILE=ca-root.crt                                    # File with the CA certificate.
-CA_NAME=AAAA                                               # Fake CA organization, conveniently at the top in alphabetic lists of Authorities.
-PASSPHRASE_FILE=passphrase.sh                              # Contains the passphrase for the private domain key.

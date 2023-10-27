@@ -1,32 +1,24 @@
 #!/usr/bin/env bash
 
 # Creates a new CA root key and certificate.
-# Import the resulting CA_CRT_FILE file
+# Import the resulting file ca-root.crt
 # into your browser's list of authorities.
 
-# Check for settings file.
-if [ $# -gt 0 ]; then SETTINGS_FILE=$1; else SETTINGS_FILE=settings; fi
-if [ ! -f settings ]; then echo "Settings file '$SETTINGS_FILE' not found"; exit 1; fi
-source $SETTINGS_FILE
-
-# Check for key filename.
-if [ -z ${CA_KEY_FILE+x} ]; then echo "Missing CA_KEY_FILE setting; aborting"; exit 1; fi
-echo "CA keyfile is $CA_KEY_FILE"
-
-# Check for certificate filename.
-if [ -z ${CA_CRT_FILE+x} ]; then echo "Missing CA_CRT_FILE setting; aborting"; ecit 1; fi
-echo "CA certificate is $CA_CRT_FILE"
+CA_NAME=AAAA
+CA_KEY_FILE=ca-root.key
+CA_CRT_FILE=ca-root.crt
+CA_PASSPHRASE=ca-passphrase
 
 # Check for existing keyfile.
 if [ -f $CA_KEY_FILE ]; then
-    read -p "Existing CA keyfile $CA_KEY_FILE found; overwrite? [y/N] " ANSWER
-    if [[ $ANSWER != 'y' && $ANSWER != 'Y' ]]; then exit 0; fi
+    read -p "Existing CA keyfile $CA_KEY_FILE found; overwrite? [y/N] " YN
+    if [[ $YN != 'y' && $YN != 'Y' ]]; then exit 0; fi
 fi
 
 # Check for existing certificate.
 if [ -f $CA_CRT_FILE ]; then
-    read -p "Existing CA certificate file $CA_CRT_FILE found; overwrite? [y/N] " ANSWER
-    if [[ $ANSWER != 'y' && $ANSWER != 'Y' ]]; then exit 0; fi
+    read -p "Existing CA certificate $CA_CRT_FILE found; overwrite? [y/N] " YN
+    if [[ $YN != 'y' && $YN != 'Y' ]]; then exit 0; fi
 fi
 
 # Fetch the CA passphrase, either from CA_PASS_FILE or from stdin.
@@ -38,10 +30,12 @@ fi
 
 # Create a private CA key.
 echo "Creating private CA key $CA_KEY_FILE"
-openssl genpkey -quiet -algorithm rsa -aes256 -pass pass:$CA_PASSPHRASE -out $CA_KEY_FILE
+openssl genpkey -quiet -algorithm rsa -aes256 \
+-pass pass:$CA_PASSPHRASE -out $CA_KEY_FILE
 
 # Create a self-signed CA root certificate.
 echo "Creating self-signed CA certificate $CA_CRT_FILE"
-openssl req -x509 -new -noenc -key $CA_KEY_FILE -passin pass:$CA_PASSPHRASE -days 365 -out $CA_CRT_FILE -subj "/C=NL/O=$CA_NAME/CN=$CA_NAME"
+openssl req -x509 -new -noenc -key $CA_KEY_FILE -passin pass:$CA_PASSPHRASE \
+-days 365 -out $CA_CRT_FILE -subj "/C=NL/O=$CA_NAME/CN=$CA_NAME"
 
 echo "Done"
