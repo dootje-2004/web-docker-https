@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-# Creates a private key and a signed certificate to deploy on a server.
-#
-# Usage:  make-ca domain
+# Takes a domain name and
+# - creates a private key plus a signed certificate for server deployment;
+# - saves the passphrase you supply in a file for deployment on Apache;
+# - creates an Apache server configuration file.
 
-# Process the command line.
-if [ $# -lt 1 ]; then
+if [ $# -ne 1 ]; then
     echo "  Usage:  $0 <domain>"
     exit 0
 fi
@@ -13,13 +13,11 @@ fi
 DOMAIN=$1
 CA_KEY_FILE=ca-root.key
 CA_CRT_FILE=ca-root.crt
-CA_PASS_FILE=ca-passphrase
+CA_PASSPHRASE_FILE=ca-passphrase
 SERVER_KEY_FILE=server.key
 SERVER_REQ_FILE=server.csr
 SERVER_CRT_FILE=server.crt
 SERVER_PASSPHRASE_FILE=pk-passphrase-for-apache.sh
-CONF_TEMPLATE=server.conf.template
-CONF_FILE=server.conf
 
 # Check for CA key.
 if [ ! -f $CA_KEY_FILE ]; then
@@ -34,11 +32,11 @@ if [ ! -f $CA_CRT_FILE ]; then
 fi
 
 # Check for CA passphrase file.
-if [ ! -f $CA_PASS_FILE ]; then
-    >&2 echo "CA passphrase file $CA_PASS_FILE not found"
+if [ ! -f $CA_PASSPHRASE_FILE ]; then
+    >&2 echo "CA passphrase file $CA_PASSPHRASE_FILE not found"
     exit 1
 fi
-CA_PASSPHRASE=<(cat $CA_PASS_FILE)
+CA_PASSPHRASE=$(<$CA_PASSPHRASE_FILE)
 
 # Ask for domain passphrase.
 read -s -p "Enter passphrase for private key: " PK_PASSPHRASE
@@ -63,11 +61,11 @@ openssl x509 -in $SERVER_REQ_FILE -req -CA $CA_CRT_FILE -CAkey $CA_KEY_FILE \
 basicConstraints=CA:FALSE\nsubjectAltName=DNS:$DOMAIN")
 
 # Create a passphrase file for Apache.
-printf "#!/bin/sh\necho \"$PK_PASSPHRASE\"" > $SERVER_PASSPHRASE_FILE
+printf "#!/bin/sh\necho \"$PK_PASSPHRASE\"\n" > $SERVER_PASSPHRASE_FILE
 chmod a+x $SERVER_PASSPHRASE_FILE
 echo "Passphrase written to $SERVER_PASSPHRASE_FILE"
 
-echo "Creating server.conf from template"
-sed "s/{{DOMAIN}}/$DOMAIN/g" $CONF_TEMPLATE > $CONF_FILE
+echo "Removing signing request file"
+rm $SERVER_REQ_FILE
 
 echo "Done"

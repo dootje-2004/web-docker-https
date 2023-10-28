@@ -287,3 +287,17 @@ TKnQzn0h6hEqpmiSHBcEnosvwpqSsXvYiVESIBuDw/dhamejNLXDXCfrh9Ud/oaf
 P+isNhJyt5sHDrxsiFtKjlh6bdABmh0Ws1ShhIjrZ6t0YGLjSniQvN4=
 -----END CERTIFICATE-----
 ```
+
+### Tips
+
+Check a certificate with
+
+```bash
+openssl x509 -in <certificate> -text -noout
+```
+
+Verify the passphrase of a key with
+
+```bash
+openssl rsa -noout -in <key> -passin pass:<passphrase>
+```

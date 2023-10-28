@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 
 # Creates a new CA root key and certificate.
-# Import the resulting file ca-root.crt
-# into your browser's list of authorities.
+# Use the CA certificate to sign any CSRs for your local websites.
+# Import the resulting file ca-root.crt into your browser's
+# list of authorities to make the browser trust your local sites.
 
 CA_NAME=AAAA
 CA_KEY_FILE=ca-root.key
 CA_CRT_FILE=ca-root.crt
-CA_PASSPHRASE=ca-passphrase
+CA_PASSPHRASE_FILE=ca-passphrase
 
 # Check for existing keyfile.
 if [ -f $CA_KEY_FILE ]; then
@@ -22,10 +23,11 @@ if [ -f $CA_CRT_FILE ]; then
 fi
 
 # Fetch the CA passphrase, either from CA_PASS_FILE or from stdin.
-if [ ! -f $CA_PASS_FILE ]; then
+if [ ! -f $CA_PASSPHRASE_FILE ]; then
     read -s -p "Enter CA passphrase: " CA_PASSPHRASE
+    echo $CA_PASSPHRASE > $CA_PASSPHRASE_FILE
 else
-    CA_PASSPHRASE=<(cat $CA_PASS_FILE)
+    CA_PASSPHRASE=$(<$CA_PASSPHRASE_FILE)
 fi
 
 # Create a private CA key.
