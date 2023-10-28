@@ -5,18 +5,23 @@ Scripts are for Ubuntu / Debian.
 
 ## TL;DR
 
-* Prerequisites: Linux with OpenSSL, Docker and bash.
+Prerequisites: Linux with OpenSSL, Docker and bash.
 This demo uses docker-compose, but `docker run` will also work.
-* Clone or copy this repository.
+
+To get started, clone or copy this repository.
+Then run these commands:
 
 ```bash
-./make-ca  # create CA key and certificate
-./make-signed-certificate  # create server key and certificate
+./make-ca                      # create CA key and certificate
+./make-signed-certificate      # create server key and certificate
 ./make-docker-setup 2345 3456  # put settings in Docker config
-docker-compose up -d  # start the Apache container.
+docker-compose up -d --build   # start the Apache container
 ```
 
-If you haven't installed *docker-compose*, do
+> The `--build` option is not needed on the first run, but it makes
+sure the container is freshly initialized at each subsequent start.
+
+If you haven't installed *docker-compose*:
 
 ```bash
 docker run -d --rm --name webtest -h localhost -p 2345:80 -p 3456:443 -v ./html:/var/www/html $(docker build -q .)
@@ -59,41 +64,94 @@ the distribution of the CA root certificate to all of your
 visitors' browsers, but this is a one-time action (until your
 CA root certificate expires, of course :grin:).
 
-## Setup
+## What is happening here exactly?
 
-This project demonstrates how you can set up server validation
+This demo demonstrates how you can set up server validation
 on a local network, where the server is a Docker container
 running Apache.
 This has the advantage that you can try this out without
 messing with existing websites, or having to install your own
 Apache web server.
 
-To get going, clone this repository. Next, establish yourself
-as a Certificate Authority by running
-the *make-ca* script with `./make-ca`.
+We'll go through the demo step by step.
+
+### Step 1: Be your own boss
+
+Running the *make-ca* script establishes you as a Certificate Authority.
 The first time you run this script you will be prompted for a
-CA passphrase. This passphrase is reused when you run *make-ca*
-again, unless you edit or remove the file *ca-passphrase*.
-Make sure nobody has access to the *ca-root.key* or *ca-passphrase*
-files.
+passphrase. This passphrase is reused when you run *make-ca*
+again. For a different passphrase, edit or remove the *ca-passphrase* file.
+
+>Make sure nobody has access to *ca-root.key* or *ca-passphrase*.
+
+You will need to run *make-ca* again when your first root certificate
+expires, which we set to one year for this demo. Change it as you please.
+
+### Step 2: Wield your powers
 
 For each domain (i.e. server or website) that you want to validate,
 run the *make-signed-certificate* script.
-This uses the CA root certificate to sign (validate) each server
-certificate.
+This uses the CA root certificate *ca-root.crt* to sign (validate)
+a server key *server.key*, resulting in a signed server certificate
+*server.crt*.
 
-> If you run a website in a container (like we are doing here),
-make sure to use the hostname of the Docker host as the domain name.
-> If they differ, the host can't be reached if the URL uses the
-container hostname, or the container refuses the connection if the URL
-uses the host's name (because the URL refers to a domain that is not
-in the SSL certificate).
-
-Find out the hostname for your machine by running `echo $HOSTNAME`.
+To create a certificate for a server other than localhost,
+supply the domain name to *make-signed-certificate*.
+Find out the hostname of your machine with `echo $HOSTNAME`.
 Suppose your machine is called *my-laptop*.
 Then the command to use is `./make-signed-certificate my-laptop`.
 
+> If you run a website in a container (like we are doing here),
+make sure to use the hostname of the Docker host as the domain name.
+For the demo we use *localhost*, because that name is always valid
+locally. You can visit the server from your host environment, but
+you can't reach the HTTPS page from other machines.
+For that you'd need a URL with your machine's network name or IP address,
+but that name or address does not match the domain name in the
+container's certificate. You *can* vist the unencrypted page, though.
 
+### Step 3: Put it to work
+
+This is where you install the signed certificate and key on
+the target server, and distribute the root certificate to the clients
+on your local network (*clients* being tech-speak for browsers).
+
+The installation procedure depends on the type of web server and how it
+is deployed (container or bare-metal).
+
+#### Apache
+
+* Create a server configuration for a VirtualHost that supports SSL.
+  The *server.conf* file in this project provides a basic example.
+* Copy the server certificate and key to the locations specified in
+  the SSL-enabled VirtualHost configuration.
+* Provide a (tiny) script that produces the passphrase, like the file
+  *pk-passphrase-for-apache.sh* we created with the
+  *make-signed-certificate* script.
+* Add a global configuration (i.e. outside your VirtualHosts) with the
+  *SSLPassPhraseDialog* directive
+  that tells Apache where that passphrase script resides
+  ([docs](https://httpd.apache.org/docs/2.2/mod/mod_ssl.html#sslpassphrasedialog)).
+* If Apache was already running, restart it for the changes to take effect.
+
+### Other web servers
+
+We are not familiar with nginx, IIS or others.
+
+### Distribution of the root certificate
+
+How you distribute the root certificate depends on the browser.
+
+#### Firefox
+
+Importing the root certificate can be automated with *certutil*.
+Install it with `sudo apt install libnss3-tools`.
+
+...
+
+#### Chrome
+
+...
 
 ## References
 

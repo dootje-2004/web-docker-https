@@ -1,22 +1,15 @@
 #!/usr/bin/env bash
 
-# Takes a domain name and two port numbers, and applies those
+# Takes two port numbers and a domain name, and applies those
 # settings to the files needed to run a containerized Apache web server.
+# If the domain name is missing, localhost is used.
 
 if [[ $# -lt 2 || $# -gt 3 ]]; then
     printf "\nUsage:  $0 <HTTP port> <HTTPS port> [<domain name>]\n\n"
     exit 0
 fi
 
-if [ $# -eq 2 ]; then
-    DOMAIN=$HOSTNAME
-    if [ -z $HOSTNAME ]; then
-        echo "You didn't provide a domain name, and your machine doesn't have one either"
-        exit 1
-    fi
-else
-    DOMAIN=$3
-fi
+DOMAIN=${3:-localhost}
 
 FILE=docker-compose.yml
 echo "Inserting domain name '$DOMAIN' into $FILE"
@@ -30,6 +23,10 @@ echo "Inserting domain name '$DOMAIN' into $FILE"
 sed -i "s/\(ServerName\)\s*.*/\1 $DOMAIN/" $FILE
 sed -i "s/\(ServerAdmin\)\s*.*/\1 admin@$DOMAIN/" $FILE
 
+FILE=ssl-passphrase.conf
+echo "Inserting domain name '$DOMAIN' into $FILE"
+sed -i "s/\(ServerName\)\s\+.*/\1 $DOMAIN/" $FILE
+
 FILE=html/index.html
 echo "Inserting domain name '$DOMAIN' into the header text of $FILE"
 sed -i "s/<h1>.*<\/h1>/<h1>Welcome to $DOMAIN<\/h1>/" $FILE
@@ -37,7 +34,3 @@ echo "Inserting domain name '$DOMAIN' and HTTP port number $1 into $FILE"
 sed -i "s/http:\/\/[^/]*/http:\/\/$DOMAIN:$1/" $FILE
 echo "Inserting domain name '$DOMAIN' and HTTPS port number $2 into $FILE"
 sed -i "s/https:\/\/[^/]*/https:\/\/$DOMAIN:$2/" $FILE
-
-FILE=ssl-passphrase.conf
-echo "Inserting domain name '$DOMAIN' into $FILE"
-sed -i "s/\(ServerName\)\s\+.*/\1 $DOMAIN/" $FILE

@@ -1,20 +1,11 @@
 #!/usr/bin/env bash
 
-# Takes a domain name (or this machine's name if omitted) and
+# Takes a domain name (or localhost if omitted) and
 # - creates a private key plus a signed certificate for server deployment;
 # - saves the passphrase you supply in a file for deployment on Apache;
 # - creates an Apache server configuration file.
 
-if [ $# -eq 0 ]; then
-    DOMAIN=$HOSTNAME
-    if [ -z $HOSTNAME ]; then
-        echo "You didn't provide a domain name, and your machine doesn't have one either"
-        exit 1
-    fi
-else
-    DOMAIN=$1
-fi
-
+DOMAIN=${1:-localhost}
 CA_KEY_FILE=ca-root.key
 CA_CRT_FILE=ca-root.crt
 CA_PASSPHRASE_FILE=ca-passphrase

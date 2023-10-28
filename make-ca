@@ -9,6 +9,7 @@ CA_NAME=AAAA
 CA_KEY_FILE=ca-root.key
 CA_CRT_FILE=ca-root.crt
 CA_PASSPHRASE_FILE=ca-passphrase
+DAYS=365
 
 # Check for existing keyfile.
 if [ -f $CA_KEY_FILE ]; then
@@ -38,6 +39,6 @@ openssl genpkey -quiet -algorithm rsa -aes256 \
 # Create a self-signed CA root certificate.
 echo "Creating self-signed CA certificate $CA_CRT_FILE"
 openssl req -x509 -new -noenc -key $CA_KEY_FILE -passin pass:$CA_PASSPHRASE \
--days 365 -out $CA_CRT_FILE -subj "/C=NL/O=$CA_NAME/CN=$CA_NAME"
+-days $DAYS -out $CA_CRT_FILE -subj "/C=NL/O=$CA_NAME/CN=$CA_NAME"
 
 echo "Done"
