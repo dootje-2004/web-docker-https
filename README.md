@@ -1,24 +1,33 @@
 # HTTPS access to an Apache container
 
-Example project for setting up SSL on a container running an Apache web server.
+Demo project for setting up SSL on a container running an Apache web server.
 Scripts are for Ubuntu / Debian.
-It shouldn't be too difficult to port them to Windows, but who runs servers
-or Docker on Windows anyway?
 
 ## TL;DR
 
-* Clone this repository.
-* Run `./make-ca`.
-* Run `./make-signed-certificate <domain-name>` for
-each of your local domains. Make sure that
-*domain-name* equals the hostname of the machine the container
-will be running on.
-* Run `./make-docker-setup <domain-name> <http-port> <https-port>`
-to insert the settings into the Docker and Apache configuration files.
-* Run `docker-compose up -d` to start the Apache container.
-* Point your browser to <http://domain-name:http-port/> and
-<http://domain-name:https-port/> to verify that the container runs
-correctly.
+* Prerequisites: Linux with OpenSSL, Docker and bash.
+This demo uses docker-compose, but `docker run` will also work.
+* Clone or copy this repository.
+
+```bash
+./make-ca  # create CA key and certificate
+./make-signed-certificate  # create server key and certificate
+./make-docker-setup 2345 3456  # put settings in Docker config
+docker-compose up -d  # start the Apache container.
+```
+
+If you haven't installed *docker-compose*, do
+
+```bash
+docker run -d --rm --name webtest -h localhost -p 2345:80 -p 3456:443 -v ./html:/var/www/html $(docker build -q .)
+```
+
+Import `ca-root.key` into your browser, and point it to
+<http://localhost:2345/> and <https://localhost:3456/>
+to verify that the container runs correctly.
+
+Stop the container with `docker-compose down` or `docker stop webtest`,
+depending on how you started it.
 
 ## Context
 
@@ -26,21 +35,21 @@ Picture this: You are running a web app on your local network.
 The app is for personal use and is not exposed to the outside world.
 Even so, you want to connect to the app over SSL/TLS.
 One reason could be that your app requires a username and password,
-and some browsers (like Firefox) complain that logging in over HTTP
-is a bad idea, even on a local network.
+and some browsers (like Firefox) complain that unencrypted logins
+are a bad idea, even on a local network.
 
 You could equip your server with a self-signed SSL certificate,
 something that e.g. Apache provides out of the box (the *snakeoil*
 certificate and key).
 The problem with that is that browsers mistrust self-signed server
-certificates, and with good reaon. Your visitors will get to
+certificates, and with good reason. Your visitors will see
 your web page, but only after moving an annoying warning out of the way.
 
 Homebrew websites that are accessible from the internet can be
 certified by utilities like *Let's Encrypt* aka *certbot*.
 Internal sites don't have that option, since validation through
-certbot requires internet exposure (certbot will interrogate your
-site over both HTTP and HTTPS).
+certbot requires internet exposure: certbot will interrogate your
+site over both HTTP and HTTPS.
 
 The least intrusive way (for your visitors) of validating
 your internal website is to act as your own Certificate Authority,
@@ -48,7 +57,7 @@ and in that role issue a signed certificate for each of your
 internal sites. The only annoying thing this leaves you with is
 the distribution of the CA root certificate to all of your
 visitors' browsers, but this is a one-time action (until your
-CA root certificate expires, of course).
+CA root certificate expires, of course :grin:).
 
 ## Setup
 
