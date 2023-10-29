@@ -12,3 +12,15 @@ services:
       - "3456:443"
     volumes:
       - "./html:/var/www/html"
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    container_name: ssl-test-nginx
+    hostname: localhost
+    ports:
+      - "4567:80"
+      - "5678:443"
+    volumes:
+      - "./html:/usr/share/nginx/html"

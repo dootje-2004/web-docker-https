@@ -1,13 +1,13 @@
 # HTTPS access to an Apache container
 
-Demo project for setting up SSL on a container running an Apache web server.
+Demo project for setting up SSL on a container running an Apache or nginx web server.
 Scripts are for Ubuntu / Debian.
 
 ## TL;DR
 
 ### Prerequisites
 
-Linux with OpenSSL, Docker and bash.
+Linux with OpenSSL, Docker, bash and sed.
 This demo uses docker-compose, but `docker run` will also work.
 
 ### Run the demo
@@ -18,8 +18,9 @@ Then run these commands:
 ```bash
 ./make-ca                      # create CA key and certificate
 ./make-signed-certificate      # create server key and certificate
-./make-apache-setup 2345 3456  # put settings in Docker config
-docker-compose up -d --build   # start the Apache container
+./make-apache-setup 2345 3456  # put Apache settings in Docker config
+./make-apache-setup 4567 5678  # put nginx settings in Docker config
+docker-compose up -d --build   # start the containers
 ```
 
 > The `--build` option is not needed on the first run, but it makes
@@ -129,9 +130,9 @@ is deployed (container or bare-metal).
 #### Apache
 
 * Create a server configuration for a VirtualHost that supports SSL.
-  The *demo.conf* file in this project provides a basic example.
-* Copy the server certificate and key to the locations specified in
-  the SSL-enabled VirtualHost configuration.
+  The *apache.conf* file in this project provides a basic example.
+* Copy the server certificate and key to the locations specified
+  in *apache.conf*.
 * Provide a (tiny) script that produces the passphrase, like the file
   *pk-passphrase-provider.sh* we create with the
   *make-apache-setup* script.
@@ -146,9 +147,28 @@ For non-containerized Apache installs, the *Dockerfile.apache* basically shows y
 what has to be done.
 You could even convert it to a shell script with a little editing.
 
+#### nginx
+
+* Create a server configuration that supports SSL.
+  The *nginx.conf* file in this project provides a basic example.
+* Copy the server certificate and key to the locations specified
+  in *nginx.conf*.
+* Copy the private-key passphrase to the location specified in *nginx.conf*.
+* If nginx was already running, restart it for the changes to take effect.
+
+All these steps are taken care of by the project's *Dockerfile.nginx*.
+For non-containerized nginx installs, the *Dockerfile.nginx* basically shows you
+what has to be done.
+You could even convert it to a shell script with a little editing.
+
+Useful documentation:
+
+* <https://docs.nginx.com/nginx/admin-guide/basic-functionality/managing-configuration-files/>
+* <https://nginx.org/en/docs/http/configuring_https_servers.html>
+
 #### Other web servers
 
-We are not familiar with nginx, IIS, or others.
+We are not familiar with IIS or other products.
 There should be plenty of tutorials out there to get you started.
 
 ### Distribution of the root certificate

@@ -143,7 +143,7 @@ php8   | AH00558: apache2: Could not reliably determine the server's fully quali
 ```
 
 This is caused by a mismatch in domain name between the container hostname
-set in *docker-compose*, the Apache *ServerName* directive in *demo.conf*
+set in *docker-compose*, the Apache *ServerName* directive in *apache.conf*
 and/or the domain name in the server certificate.
 All three must be identical.
 
