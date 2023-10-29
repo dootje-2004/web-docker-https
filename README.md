@@ -1,14 +1,15 @@
-# HTTPS access to an Apache container
+# SSL on a containerized web server
 
-Demo project for setting up SSL on a container running an Apache or nginx web server.
+Demo project for setting up SSL on a container running
+an Apache or nginx web server.
 Scripts are for Ubuntu / Debian.
 
 ## TL;DR
 
 ### Prerequisites
 
-Linux with OpenSSL, Docker, bash and sed.
-This demo uses docker-compose, but `docker run` will also work.
+Linux with OpenSSL, Docker, bash, and sed.
+This demo uses *docker-compose*, but `docker run` will also work.
 
 ### Run the demo
 
@@ -26,8 +27,7 @@ docker-compose up -d           # start the two containers
 > For subsequent runs, use the `--build` option for docker-compose to make
   sure the container is freshly re-initialized.
 
-&nbsp;
-
+<!-- -->
 > Run *docker-compose* without the `-d` or `--detach` option to run the
   containers interactively, and see the server logs in the terminal.
   Stop the containers with `Ctrl+C`.
@@ -88,9 +88,9 @@ CA root certificate expires, of course :grin:).
 
 This demo demonstrates how you can set up server validation
 on a local network, where the server is a Docker container
-running Apache.
+running Apache or nginx.
 You can try out this demo without messing with existing websites
-or having to install your own Apache web server.
+or having to install your own Apache or nginx web server.
 
 We'll go through the demo step by step.
 
@@ -103,8 +103,8 @@ again. For a different passphrase, edit or remove the *ca-passphrase* file.
 
 > Make sure nobody has access to *ca-root.key* or *ca-passphrase*.
 
-You will need to run *make-ca* again when your first root certificate
-expires, which we set to one year for this demo. Change it as you please.
+You will need to run *make-ca* again when your root certificate
+expires, which we set to be one year from now. Change it as you please.
 
 ### Step 2: Wield your powers
 
@@ -132,11 +132,10 @@ container's certificate. You *can* vist the unencrypted page, though.
 ### Step 3: Put it to work
 
 This is where you install the signed certificate and key on
-the target server, and distribute the root certificate to the clients
-on your local network (*clients* being tech-speak for browsers).
+the servers and distribute the root certificate to the clients
+(i.e. browsers) of the users on your local network.
 
-The installation procedure depends on the type of web server and how it
-is deployed (container or bare-metal).
+The installation procedure depends on the type of web server.
 
 #### Apache
 
@@ -151,21 +150,27 @@ is deployed (container or bare-metal).
   *SSLPassPhraseDialog* directive
   that tells Apache where that passphrase script resides
   ([docs](https://httpd.apache.org/docs/2.2/mod/mod_ssl.html#sslpassphrasedialog)).
-* If Apache was already running, restart it for the changes to take effect.
+* If Apache is already running, restart it for the changes to take effect.
 
-All these steps are taken care of by the project's *Dockerfile.apache*.
-For non-containerized Apache installs, the *Dockerfile.apache* basically shows you
+All these steps are taken care of by the *Dockerfile.apache* file in this demo.
+For non-containerized Apache installs *Dockerfile.apache* basically shows you
 what has to be done.
 You could even convert it to a shell script with a little editing.
 
 #### nginx
 
 * Create a server configuration that supports SSL.
-  The *nginx.conf* file in this project provides a basic example.
+  The *nginx.conf* file in this project provides an example.
+  The configuration is more complex than the Apache one, because nginx does
+  not suppport PHP out of the box.
+  Kudos to [trafex](https://hub.docker.com/u/trafex) for creating the
+  Docker image.
 * Copy the server certificate and key to the locations specified
   in *nginx.conf*.
 * Copy the private-key passphrase to the location specified in *nginx.conf*.
-* If nginx was already running, restart it for the changes to take effect.
+  The passphrase is read directly from the file. This is less complex than
+  what Apache does, but also less flexible.
+* If nginx is already running, restart it for the changes to take effect.
 
 All these steps are taken care of by the project's *Dockerfile.nginx*.
 For non-containerized nginx installs, the *Dockerfile.nginx* basically shows you
@@ -215,7 +220,7 @@ How you distribute the root certificate depends on the browser.
 #### Opera
 
 See the instructions for Chrome.
-The certificates page can be accessed at `opera://settings/certificates`.
+The *certificates* page can be accessed at `opera://settings/certificates`.
 It also works without the `opera://` protocol identifier.
 
 ## Deprecated build option
