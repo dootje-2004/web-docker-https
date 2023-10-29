@@ -78,13 +78,13 @@ site over both HTTP and HTTPS.
 
 The least intrusive way (for your visitors) of validating
 your internal website is to act as your own Certificate Authority,
-and in that role issue a signed certificate for each of your
+and in that role issue signed certificates for each of your
 internal sites. The only annoying thing this leaves you with is
 the distribution of the CA root certificate to all of your
 visitors' browsers, but this is a one-time action (until your
 CA root certificate expires, of course :grin:).
 
-## What is happening here exactly?
+## What is this demo about?
 
 This demo demonstrates how you can set up server validation
 on a local network, where the server is a Docker container
@@ -184,9 +184,10 @@ Useful documentation:
 
 ### Distribution of the root certificate
 
-How you distribute the root certificate depends on the browser.
+How you distribute the root certificate depends on your browser
+and operating system.
 
-#### Firefox
+#### Firefox on Linux
 
 * To import the CA certificate, open Firefox and select *Settings* from the
   application menu in the upper right corner.
@@ -203,7 +204,7 @@ How you distribute the root certificate depends on the browser.
 > Import of the CA certificate can be automated with *certutil* (part of the
 *libnss3-tools* package), but that is beyond the scope of this demo.
 
-#### Chrome
+#### Chrome on Linux
 
 * Open Chrome and select *Settings* from the application menu.
 * Select *Privacy and security* in the left menu.
@@ -217,11 +218,15 @@ How you distribute the root certificate depends on the browser.
   and click *OK*. You'll see a new Authorities entry *org-AAAA*.
 * Navigate to  <https://localhost:3456/> to confirm the certificate works.
 
-#### Opera
+#### Opera on Linux
 
 See the instructions for Chrome.
 The *certificates* page can be accessed at `opera://settings/certificates`.
 It also works without the `opera://` protocol identifier.
+
+#### Firefox, Chrome, Opera on Windows
+
+TBD.
 
 ## Deprecated build option
 

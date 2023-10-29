@@ -23,10 +23,10 @@ FILE=nginx.conf
 echo "Inserting domain name '$DOMAIN' into $FILE"
 sed -i "s/\(server_name\)\s*[^;]*/\1 $DOMAIN/" $FILE
 
-FILES="html/index.html html/index.php"
-echo "Inserting domain name '$DOMAIN' into the header text of $FILES"
-sed -i "s/<h1>.*<\/h1>/<h1>Welcome to $DOMAIN<\/h1>/" $FILES
-echo "Inserting domain name '$DOMAIN' and HTTP port number $1 into $FILES"
-sed -i "s/http:\/\/[^/]*\(.*nginx\)/http:\/\/$DOMAIN:$1\1/" $FILES
-echo "Inserting domain name '$DOMAIN' and HTTPS port number $2 into $FILES"
-sed -i "s/https:\/\/[^/]*\(.*nginx\)/https:\/\/$DOMAIN:$2\1/" $FILES
+FILE=html/index.php
+echo "Inserting domain name '$DOMAIN' into the header text of $FILE"
+sed -i "s/<h1>.*<\/h1>/<h1>Welcome to $DOMAIN<\/h1>/" $FILE
+echo "Inserting domain name '$DOMAIN' and HTTP port number $1 into $FILE"
+sed -i "s/http:\/\/[^/]*\(.*nginx\)/http:\/\/$DOMAIN:$1\1/" $FILE
+echo "Inserting domain name '$DOMAIN' and HTTPS port number $2 into $FILE"
+sed -i "s/https:\/\/[^/]*\(.*nginx\)/https:\/\/$DOMAIN:$2\1/" $FILE
