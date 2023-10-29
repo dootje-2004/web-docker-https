@@ -28,8 +28,9 @@ docker-compose up -d           # start the two containers
 
 &nbsp;
 
-> Run *docker-compose* without the `-d` or `--detach` option to see the
-  server logs in the terminal.
+> Run *docker-compose* without the `-d` or `--detach` option to run the
+  containers interactively, and see the server logs in the terminal.
+  Stop the containers with `Ctrl+C`.
 
 If you haven't installed *docker-compose*:
 
@@ -42,8 +43,12 @@ docker run -d --rm --name ssl-test -h localhost -p 2345:80 -p 3456:443 -v ./html
   See [below](#deprecated-build-option) how to handle that.
 
 Import `ca-root.key` into your browser of choice, and point it to
-<http://localhost:2345/> and <https://localhost:3456/>
-to verify that the container runs correctly.
+<http://localhost:2345/> to verify that the container runs correctly.
+Use the links in that page to check the other ports.
+
+> The page contains a PHP script to show the current date and time.
+  This prevents browser caching, so you know the content is really served
+  by the containers.
 
 Stop the container with `docker-compose down` or
 `docker stop ssl-test-apache ssl-test-nginx`,

@@ -14,6 +14,6 @@
         View <a href="https://localhost:5678/index.php">this page with HTTPS</a>, served by nginx.
     </p>
     <p>
-        Page served <?php echo date('Y-m-d H:i:s'); ?>
+        Page served <?php echo date('Y-m-d H:i:s'); ?> UTC.
     </p>
 </body>
