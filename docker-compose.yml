@@ -1,12 +1,26 @@
 version: '3'
 
 services:
-  app:
-    build: .
-    container_name: ssl-test
+  apache:
+    build:
+      context: .
+      dockerfile: Dockerfile.apache
+    container_name: ssl-test-apache
     hostname: localhost
     ports:
       - "2345:80"
       - "3456:443"
+    volumes:
+      - "./html:/var/www/html"
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    container_name: ssl-test-nginx
+    hostname: localhost
+    ports:
+      - "4567:80"
+      - "5678:443"
     volumes:
       - "./html:/var/www/html"

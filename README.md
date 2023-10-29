@@ -1,13 +1,13 @@
 # HTTPS access to an Apache container
 
-Demo project for setting up SSL on a container running an Apache web server.
+Demo project for setting up SSL on a container running an Apache or nginx web server.
 Scripts are for Ubuntu / Debian.
 
 ## TL;DR
 
 ### Prerequisites
 
-Linux with OpenSSL, Docker and bash.
+Linux with OpenSSL, Docker, bash and sed.
 This demo uses docker-compose, but `docker run` will also work.
 
 ### Run the demo
@@ -18,12 +18,19 @@ Then run these commands:
 ```bash
 ./make-ca                      # create CA key and certificate
 ./make-signed-certificate      # create server key and certificate
-./make-docker-setup 2345 3456  # put settings in Docker config
-docker-compose up -d --build   # start the Apache container
+./make-apache-setup 2345 3456  # put Apache settings in Docker config
+./make-apache-setup 4567 5678  # put nginx settings in Docker config
+docker-compose up -d           # start the two containers
 ```
 
-> The `--build` option is not needed on the first run, but it makes
-sure the container is freshly initialized at each subsequent start.
+> For subsequent runs, use the `--build` option for docker-compose to make
+  sure the container is freshly re-initialized.
+
+&nbsp;
+
+> Run *docker-compose* without the `-d` or `--detach` option to run the
+  containers interactively, and see the server logs in the terminal.
+  Stop the containers with `Ctrl+C`.
 
 If you haven't installed *docker-compose*:
 
@@ -36,10 +43,15 @@ docker run -d --rm --name ssl-test -h localhost -p 2345:80 -p 3456:443 -v ./html
   See [below](#deprecated-build-option) how to handle that.
 
 Import `ca-root.key` into your browser of choice, and point it to
-<http://localhost:2345/> and <https://localhost:3456/>
-to verify that the container runs correctly.
+<http://localhost:2345/> to verify that the container runs correctly.
+Use the links in that page to check the other ports.
 
-Stop the container with `docker-compose down` or `docker stop ssl-test`,
+> The page contains a PHP script to show the current date and time.
+  This prevents browser caching, so you know the content is really served
+  by the containers.
+
+Stop the container with `docker-compose down` or
+`docker stop ssl-test-apache ssl-test-nginx`,
 depending on how you started it.
 
 ## Context
@@ -129,27 +141,41 @@ is deployed (container or bare-metal).
 #### Apache
 
 * Create a server configuration for a VirtualHost that supports SSL.
-  The *server.conf* file in this project provides a basic example.
-* Copy the server certificate and key to the locations specified in
-  the SSL-enabled VirtualHost configuration.
+  The *apache.conf* file in this project provides a basic example.
+* Copy the server certificate and key to the locations specified
+  in *apache.conf*.
 * Provide a (tiny) script that produces the passphrase, like the file
-  *pk-passphrase-for-apache.sh* we created with the
-  *make-signed-certificate* script.
+  *pk-passphrase-provider.sh* we create with the
+  *make-apache-setup* script.
 * Add a global configuration (i.e. outside your VirtualHosts) with the
   *SSLPassPhraseDialog* directive
   that tells Apache where that passphrase script resides
   ([docs](https://httpd.apache.org/docs/2.2/mod/mod_ssl.html#sslpassphrasedialog)).
 * If Apache was already running, restart it for the changes to take effect.
 
-All these steps are taken care of by the project's *Dockerfile*.
-For non-containerized Apache installs, the *Dockerfile* basically shows you
+All these steps are taken care of by the project's *Dockerfile.apache*.
+For non-containerized Apache installs, the *Dockerfile.apache* basically shows you
 what has to be done.
 You could even convert it to a shell script with a little editing.
 
-#### Other web servers
+#### nginx
 
-We are not familiar with nginx, IIS, or others.
-There should be plenty of tutorials out there to get you started.
+* Create a server configuration that supports SSL.
+  The *nginx.conf* file in this project provides a basic example.
+* Copy the server certificate and key to the locations specified
+  in *nginx.conf*.
+* Copy the private-key passphrase to the location specified in *nginx.conf*.
+* If nginx was already running, restart it for the changes to take effect.
+
+All these steps are taken care of by the project's *Dockerfile.nginx*.
+For non-containerized nginx installs, the *Dockerfile.nginx* basically shows you
+what has to be done.
+You could even convert it to a shell script with a little editing.
+
+Useful documentation:
+
+* <https://docs.nginx.com/nginx/admin-guide/basic-functionality/managing-configuration-files/>
+* <https://nginx.org/en/docs/http/configuring_https_servers.html>
 
 ### Distribution of the root certificate
 
@@ -169,7 +195,7 @@ How you distribute the root certificate depends on the browser.
   and click *OK*. You'll see a new Authorities entry *AAAA*.
 * Navigate to  <https://localhost:3456/> to confirm the certificate works.
 
-Import of the CA certificate can be automated with *certutil* (part of the
+> Import of the CA certificate can be automated with *certutil* (part of the
 *libnss3-tools* package), but that is beyond the scope of this demo.
 
 #### Chrome
@@ -185,6 +211,12 @@ Import of the CA certificate can be automated with *certutil* (part of the
 * Check the box that says *Trust this certificate for identifying websites*
   and click *OK*. You'll see a new Authorities entry *org-AAAA*.
 * Navigate to  <https://localhost:3456/> to confirm the certificate works.
+
+#### Opera
+
+See the instructions for Chrome.
+The certificates page can be accessed at `opera://settings/certificates`.
+It also works without the `opera://` protocol identifier.
 
 ## Deprecated build option
 

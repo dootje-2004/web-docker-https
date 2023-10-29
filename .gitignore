@@ -2,6 +2,6 @@
 *.csr
 *.key
 *.pem
-pk-passphrase-for-apache.sh
+pk-passphrase-provider.sh
 ca-passphrase
-server.conf
+pk-passphrase

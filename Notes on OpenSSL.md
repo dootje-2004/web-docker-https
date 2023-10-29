@@ -117,7 +117,7 @@ The server holds both its public certificate *server.crt* and its private *serve
 In Apache, these are referred to as *SSLCertificateFile* and *SSLCertificateKeyFile*,
 respectively.
 Define a directory `/etc/apache2/ssl` to hold them.
-This directory will be created by the `COPY` command in *Dockerfile*.
+This directory will be created by the `COPY` command in *Dockerfile.apache*.
 
 > It is a good idea to start the Apache container interactively by
   omitting the `--detach` of `-d` option from the `docker-compose up` command.
@@ -143,7 +143,7 @@ php8   | AH00558: apache2: Could not reliably determine the server's fully quali
 ```
 
 This is caused by a mismatch in domain name between the container hostname
-set in *docker-compose*, the Apache *ServerName* directive in *server.conf*
+set in *docker-compose*, the Apache *ServerName* directive in *apache.conf*
 and/or the domain name in the server certificate.
 All three must be identical.
 
@@ -168,6 +168,11 @@ It must live in another configuration file.
 We copy this file to `/etc/apache2/conf-available` en enable it with `a2enconf server-ssl`.
 
 > There is no `conf.d` directory like in some older Apache versions.
+
+## nginx
+
+The main difference with Apache is the format of the server configuration file.
+*Dockerfile.nginx* shows you what files are relevant, and where they go.
 
 ## Tips
 

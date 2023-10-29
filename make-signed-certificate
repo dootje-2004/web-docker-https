@@ -12,7 +12,7 @@ CA_PASSPHRASE_FILE=ca-passphrase
 SERVER_KEY_FILE=server.key
 SERVER_REQ_FILE=server.csr
 SERVER_CRT_FILE=server.crt
-SERVER_PASSPHRASE_FILE=pk-passphrase-for-apache.sh
+SERVER_PASSPHRASE_FILE=pk-passphrase
 
 # Check for CA key.
 if [ ! -f $CA_KEY_FILE ]; then
@@ -55,9 +55,8 @@ openssl x509 -in $SERVER_REQ_FILE -req -CA $CA_CRT_FILE -CAkey $CA_KEY_FILE \
 -extfile <(printf "authorityKeyIdentifier=keyid,issuer\n
 basicConstraints=CA:FALSE\nsubjectAltName=DNS:$DOMAIN")
 
-# Create a passphrase file for Apache.
-printf "#!/bin/sh\necho \"$PK_PASSPHRASE\"\n" > $SERVER_PASSPHRASE_FILE
-chmod a+x $SERVER_PASSPHRASE_FILE
+# Remember the passphrase file. We need it for the Apache passphrase provider.
+echo $PK_PASSPHRASE > $SERVER_PASSPHRASE_FILE
 echo "Passphrase written to $SERVER_PASSPHRASE_FILE"
 
 echo "Removing signing request file"
