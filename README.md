@@ -18,7 +18,7 @@ Then run these commands:
 ```bash
 ./make-ca                      # create CA key and certificate
 ./make-signed-certificate      # create server key and certificate
-./make-docker-setup 2345 3456  # put settings in Docker config
+./make-apache-setup 2345 3456  # put settings in Docker config
 docker-compose up -d --build   # start the Apache container
 ```
 
@@ -129,20 +129,20 @@ is deployed (container or bare-metal).
 #### Apache
 
 * Create a server configuration for a VirtualHost that supports SSL.
-  The *server.conf* file in this project provides a basic example.
+  The *demo.conf* file in this project provides a basic example.
 * Copy the server certificate and key to the locations specified in
   the SSL-enabled VirtualHost configuration.
 * Provide a (tiny) script that produces the passphrase, like the file
-  *pk-passphrase-for-apache.sh* we created with the
-  *make-signed-certificate* script.
+  *pk-passphrase-provider.sh* we create with the
+  *make-apache-setup* script.
 * Add a global configuration (i.e. outside your VirtualHosts) with the
   *SSLPassPhraseDialog* directive
   that tells Apache where that passphrase script resides
   ([docs](https://httpd.apache.org/docs/2.2/mod/mod_ssl.html#sslpassphrasedialog)).
 * If Apache was already running, restart it for the changes to take effect.
 
-All these steps are taken care of by the project's *Dockerfile*.
-For non-containerized Apache installs, the *Dockerfile* basically shows you
+All these steps are taken care of by the project's *Dockerfile.apache*.
+For non-containerized Apache installs, the *Dockerfile.apache* basically shows you
 what has to be done.
 You could even convert it to a shell script with a little editing.
 

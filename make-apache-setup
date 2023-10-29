@@ -10,6 +10,7 @@ if [[ $# -lt 2 || $# -gt 3 ]]; then
 fi
 
 DOMAIN=${3:-localhost}
+PK_PASSPHRASE_FILE=pk-passphrase
 
 FILE=docker-compose.yml
 echo "Inserting domain name '$DOMAIN' into $FILE"
@@ -18,7 +19,7 @@ echo "Inserting HTTP port numbers $1 and $2 into $FILE"
 sed -i "s/\"[[:digit:]]\+:80\"/\"$1:80\"/" $FILE
 sed -i "s/\"[[:digit:]]\+:443\"/\"$2:443\"/" $FILE
 
-FILE=server.conf
+FILE=demo.conf
 echo "Inserting domain name '$DOMAIN' into $FILE"
 sed -i "s/\(ServerName\)\s*.*/\1 $DOMAIN/" $FILE
 sed -i "s/\(ServerAdmin\)\s*.*/\1 admin@$DOMAIN/" $FILE
@@ -34,3 +35,10 @@ echo "Inserting domain name '$DOMAIN' and HTTP port number $1 into $FILE"
 sed -i "s/http:\/\/[^/]*/http:\/\/$DOMAIN:$1/" $FILE
 echo "Inserting domain name '$DOMAIN' and HTTPS port number $2 into $FILE"
 sed -i "s/https:\/\/[^/]*/https:\/\/$DOMAIN:$2/" $FILE
+
+FILE=pk-passphrase-provider.sh
+echo "Creating passphrase provider for Apache"
+PK_PASSPHRASE=$(<$PK_PASSPHRASE_FILE)
+printf "#!/bin/sh\necho \"$PK_PASSPHRASE\"\n" > $FILE
+chmod a+x $FILE
+echo "Passphrase written to $FILE"
