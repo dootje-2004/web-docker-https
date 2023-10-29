@@ -23,4 +23,4 @@ services:
       - "4567:80"
       - "5678:443"
     volumes:
-      - "./html:/usr/share/nginx/html"
+      - "./html:/var/www/html"

@@ -21,7 +21,7 @@ sed -i -z "s/\(nginx.*\)\"[[:digit:]]\+:443\"\(.*\)\\n\\n/\1\"$2:443\"\2\\n\\n/"
 
 FILE=nginx.conf
 echo "Inserting domain name '$DOMAIN' into $FILE"
-sed -i "s/\(server_name\)\s*.*/\1 $DOMAIN/" $FILE
+sed -i "s/\(server_name\)\s*[^;]*/\1 $DOMAIN/" $FILE
 
 FILES="html/index.html html/index.php"
 echo "Inserting domain name '$DOMAIN' into the header text of $FILES"

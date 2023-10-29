@@ -169,6 +169,11 @@ We copy this file to `/etc/apache2/conf-available` en enable it with `a2enconf s
 
 > There is no `conf.d` directory like in some older Apache versions.
 
+## nginx
+
+The main difference with Apache is the format of the server configuration file.
+*Dockerfile.nginx* shows you what files are relevant, and where they go.
+
 ## Tips
 
 Check a certificate with

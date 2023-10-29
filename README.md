@@ -20,11 +20,16 @@ Then run these commands:
 ./make-signed-certificate      # create server key and certificate
 ./make-apache-setup 2345 3456  # put Apache settings in Docker config
 ./make-apache-setup 4567 5678  # put nginx settings in Docker config
-docker-compose up -d --build   # start the containers
+docker-compose up -d           # start the two containers
 ```
 
-> The `--build` option is not needed on the first run, but it makes
-sure the container is freshly initialized at each subsequent start.
+> For subsequent runs, use the `--build` option for docker-compose to make
+  sure the container is freshly re-initialized.
+
+&nbsp;
+
+> Run *docker-compose* without the `-d` or `--detach` option to see the
+  server logs in the terminal.
 
 If you haven't installed *docker-compose*:
 
@@ -40,7 +45,8 @@ Import `ca-root.key` into your browser of choice, and point it to
 <http://localhost:2345/> and <https://localhost:3456/>
 to verify that the container runs correctly.
 
-Stop the container with `docker-compose down` or `docker stop ssl-test`,
+Stop the container with `docker-compose down` or
+`docker stop ssl-test-apache ssl-test-nginx`,
 depending on how you started it.
 
 ## Context
@@ -166,11 +172,6 @@ Useful documentation:
 * <https://docs.nginx.com/nginx/admin-guide/basic-functionality/managing-configuration-files/>
 * <https://nginx.org/en/docs/http/configuring_https_servers.html>
 
-#### Other web servers
-
-We are not familiar with IIS or other products.
-There should be plenty of tutorials out there to get you started.
-
 ### Distribution of the root certificate
 
 How you distribute the root certificate depends on the browser.
@@ -189,7 +190,7 @@ How you distribute the root certificate depends on the browser.
   and click *OK*. You'll see a new Authorities entry *AAAA*.
 * Navigate to  <https://localhost:3456/> to confirm the certificate works.
 
-Import of the CA certificate can be automated with *certutil* (part of the
+> Import of the CA certificate can be automated with *certutil* (part of the
 *libnss3-tools* package), but that is beyond the scope of this demo.
 
 #### Chrome
