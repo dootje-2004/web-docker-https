@@ -27,6 +27,10 @@ If you haven't installed *docker-compose*:
 docker run -d --rm --name webtest -h localhost -p 2345:80 -p 3456:443 -v ./html:/var/www/html $(docker build -q .)
 ```
 
+> Docker may complain that the *build* option has been deprecated
+  in favor of *buildx*.
+  See [below](#deprecated-build-option) how to handle that.
+
 Import `ca-root.key` into your browser, and point it to
 <http://localhost:2345/> and <https://localhost:3456/>
 to verify that the container runs correctly.
@@ -82,7 +86,7 @@ The first time you run this script you will be prompted for a
 passphrase. This passphrase is reused when you run *make-ca*
 again. For a different passphrase, edit or remove the *ca-passphrase* file.
 
->Make sure nobody has access to *ca-root.key* or *ca-passphrase*.
+> Make sure nobody has access to *ca-root.key* or *ca-passphrase*.
 
 You will need to run *make-ca* again when your first root certificate
 expires, which we set to one year for this demo. Change it as you please.
@@ -134,9 +138,15 @@ is deployed (container or bare-metal).
   ([docs](https://httpd.apache.org/docs/2.2/mod/mod_ssl.html#sslpassphrasedialog)).
 * If Apache was already running, restart it for the changes to take effect.
 
-### Other web servers
+All these steps are taken care of by the project's *Dockerfile*.
+For non-containerized Apache installs, the *Dockerfile* basically shows you
+what has to be done.
+You could even convert it to a shell script with a little editing.
 
-We are not familiar with nginx, IIS or others.
+#### Other web servers
+
+We are not familiar with nginx, IIS, or others.
+There should be plenty of tutorials out there to get you started.
 
 ### Distribution of the root certificate
 
@@ -144,17 +154,42 @@ How you distribute the root certificate depends on the browser.
 
 #### Firefox
 
-Importing the root certificate can be automated with *certutil*.
-Install it with `sudo apt install libnss3-tools`.
+* To import the CA certificate, open Firefox and select *Settings* from the
+  application menu in the upper right corner.
+* In the left menu, select the *Privacy & Security* section.
+  Alternatively, you can type `about:preferences#privacy` in the address bar.
+* Scroll down until you can click the *View Certificates* button.
+  This opens the *Certificate Manager*.
+* Select the *Authorities* tab and click *Import*.
+* Select the *ca-root.crt* file from the demo.
+* Check the box that says *Trust this CA to identify websites*
+  and click *OK*. You'll see a new Authorities entry *AAAA*.
+* Navigate to  <https://localhost:3456/> to confirm the certificate works.
 
-...
+Import of the CA certificate can be automated with *certutil* (part of the
+*libnss3-tools* package), but that is beyond the scope of this demo.
 
 #### Chrome
 
-...
+* Open Chrome and select *Settings* from the application menu.
+* Select *Privacy and security* in the left menu.
+* Click on the *Security* section.
+* Click *Manage device certificates*.
+  Alternatively, you can type `chrome://settings/certificates`
+  in the address bar.
+* Select the *Authorities* tab en click *Import*.
+* Select the *ca-root.crt* file from the demo.
+* Check the box that says *Trust this certificate for identifying websites*
+  and click *OK*. You'll see a new Authorities entry *org-AAAA*.
+* Navigate to  <https://localhost:3456/> to confirm the certificate works.
 
-## References
+## Deprecated build option
 
-<https://dockerwebdev.com/tutorials/docker-php-development/>
+If you get a warning about *docker build* being deprecated, install the
+*Buildkit* utility with `sudo apt-get install docker-buildx`.
 
-<https://docs.docker.com/build/architecture/#install-buildx>
+> It is no longer necessary to edit `/etc/docker/daemon.json`,
+  or to use the shell variable `DOCKER_BUILDKIT=1`.
+  Docker Engine v23.0 and later default to Buildkit without further encouragement.
+  [The Docker documentation](https://docs.docker.com/build/architecture/#install-buildx)
+  confirms this.
