@@ -212,6 +212,12 @@ How you distribute the root certificate depends on the browser.
   and click *OK*. You'll see a new Authorities entry *org-AAAA*.
 * Navigate to  <https://localhost:3456/> to confirm the certificate works.
 
+#### Opera
+
+See the instructions for Chrome.
+The certificates page can be accessed at `opera://settings/certificates`.
+It also works without the `opera://` protocol identifier.
+
 ## Deprecated build option
 
 If you get a warning about *docker build* being deprecated, install the
