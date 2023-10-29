@@ -5,8 +5,12 @@ Scripts are for Ubuntu / Debian.
 
 ## TL;DR
 
-Prerequisites: Linux with OpenSSL, Docker and bash.
+### Prerequisites
+
+Linux with OpenSSL, Docker and bash.
 This demo uses docker-compose, but `docker run` will also work.
+
+### Run the demo
 
 To get started, clone or copy this repository.
 Then run these commands:
@@ -24,18 +28,18 @@ sure the container is freshly initialized at each subsequent start.
 If you haven't installed *docker-compose*:
 
 ```bash
-docker run -d --rm --name webtest -h localhost -p 2345:80 -p 3456:443 -v ./html:/var/www/html $(docker build -q .)
+docker run -d --rm --name ssl-test -h localhost -p 2345:80 -p 3456:443 -v ./html:/var/www/html $(docker build -q .)
 ```
 
 > Docker may complain that the *build* option has been deprecated
   in favor of *buildx*.
   See [below](#deprecated-build-option) how to handle that.
 
-Import `ca-root.key` into your browser, and point it to
+Import `ca-root.key` into your browser of choice, and point it to
 <http://localhost:2345/> and <https://localhost:3456/>
 to verify that the container runs correctly.
 
-Stop the container with `docker-compose down` or `docker stop webtest`,
+Stop the container with `docker-compose down` or `docker stop ssl-test`,
 depending on how you started it.
 
 ## Context
@@ -73,9 +77,8 @@ CA root certificate expires, of course :grin:).
 This demo demonstrates how you can set up server validation
 on a local network, where the server is a Docker container
 running Apache.
-This has the advantage that you can try this out without
-messing with existing websites, or having to install your own
-Apache web server.
+You can try out this demo without messing with existing websites
+or having to install your own Apache web server.
 
 We'll go through the demo step by step.
 
