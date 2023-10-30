@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# Run all demo commands in one go.
+
+docker-compose down                          # tear down running containers
+./random-string | ./make-ca                  # create CA key and certificate with a random passphrase
+./random-string | ./make-signed-certificate  # create server key and certificate with random passphrase
+./make-apache-setup 2345 3456                # put Apache settings in Docker config
+./make-nginx-setup 4567 5678                 # put nginx settings in Docker config
+docker-compose up -d --build                 # start the two containers
+xdg-open http://localhost:2345               # display the index page

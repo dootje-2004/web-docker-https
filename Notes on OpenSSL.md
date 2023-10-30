@@ -70,6 +70,15 @@ The CSR file starts with the line *----BEGIN CERTIFICATE REQUEST-----*.
 The CA verifies the CSR's origin and converts it into a certificate (CRT) *server.crt*
 using its CA root certificate *CAroot.crt*.
 The CA root certificate is self-signed, because the chain of trust has to start somewhere.
+Note that verification of a self-signed certificate will always fail:
+
+```tty
+$ openssl verify ca-root.crt
+C = NL, O = AAAA, CN = AAAA
+error 18 at 0 depth lookup: self-signed certificate
+error ca-root.crt: verification failed
+```
+
 To create a root certificate, the CA needs a private key, just like the server above:
 
 ```bash
