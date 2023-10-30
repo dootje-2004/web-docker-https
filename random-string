@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+# Generates a random string of letters and digits.
+# Takes an integer as its argument specifying the string length.
+# If no argument is supplied, defaults to 20 characters.
+# Credits to https://unix.stackexchange.com/a/230676.
+
+DEFAULT_LENGTH=20
+
+if [[ $1 != '' && $1 != +([0-9]) ]]; then echo "$1 is not an integer" >&2; exit 1; fi
+if [ $# -eq 0 ]; then LENGTH=$DEFAULT_LENGTH; else LENGTH=$1; fi
+tr -dc A-Za-z0-9 </dev/urandom | head -c $LENGTH ; echo ''

@@ -8,8 +8,19 @@ Scripts are for Ubuntu / Debian.
 
 ### Prerequisites
 
-Linux with OpenSSL, Docker, bash, and sed.
+Linux with OpenSSL, Docker, bash, and sed;
+xdg-open is used by the non-interactive version.
 This demo uses *docker-compose*, but `docker run` will also work.
+
+### For the very impatient
+
+* Execute the `run-non-interactive` script.
+* Import *ca-root.crt* into your browser
+([see below](#distribution-of-the-root-certificate)).
+* Explore the links in the web page that just opened.
+
+If anything goes wrong, try the interactive step-by-step version
+in the next paragraph.
 
 ### Run the demo
 
@@ -20,7 +31,7 @@ Then run these commands:
 ./make-ca                      # create CA key and certificate
 ./make-signed-certificate      # create server key and certificate
 ./make-apache-setup 2345 3456  # put Apache settings in Docker config
-./make-apache-setup 4567 5678  # put nginx settings in Docker config
+./make-nginx-setup 4567 5678   # put nginx settings in Docker config
 docker-compose up -d           # start the two containers
 ```
 
@@ -42,8 +53,9 @@ docker run -d --rm --name ssl-test -h localhost -p 2345:80 -p 3456:443 -v ./html
   in favor of *buildx*.
   See [below](#deprecated-build-option) how to handle that.
 
-Import `ca-root.key` into your browser of choice, and point it to
-<http://localhost:2345/> to verify that the container runs correctly.
+Import `ca-root.key` into your browser of choice
+([see below](#distribution-of-the-root-certificate)) and point it to
+<http://localhost:2345/> to verify that the Apache container runs correctly.
 Use the links in that page to check the other ports.
 
 > The page contains a PHP script to show the current date and time.
@@ -184,8 +196,13 @@ Useful documentation:
 
 ### Distribution of the root certificate
 
-How you distribute the root certificate depends on your browser
+How you distribute root certificates depends on your browser
 and operating system.
+In general, applications (like browsers) can manage their own certificate
+store(s), or they can delegate that to the operating system. A combination is also
+possible.
+The steps below are what we found to work on the systems we have access to.
+Your mileage may vary.
 
 #### Firefox on Linux
 
@@ -224,9 +241,17 @@ See the instructions for Chrome.
 The *certificates* page can be accessed at `opera://settings/certificates`.
 It also works without the `opera://` protocol identifier.
 
-#### Firefox, Chrome, Opera on Windows
+#### Firefox on Windows
 
-TBD.
+TODO: Add instructions.
+
+#### Chrome on Windows
+
+TODO: Add instructions.
+
+#### Opera on Windows
+
+TODO: Add instructions.
 
 ## Deprecated build option
 

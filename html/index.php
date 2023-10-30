@@ -1,4 +1,9 @@
 <!DOCTYPE html>
+<head>
+    <title>
+        Docker + SSL demo
+    </title>
+</head>
 <body>
     <h1>Welcome to localhost</h1>
     <p>
